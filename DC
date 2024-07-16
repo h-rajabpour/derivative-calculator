@@ -1,0 +1,88 @@
+# A code that:
+# calculates the numerical derivative of functions of x using central difference method
+# differentiates the functions analytically
+# compares the numerical derivatives of functions with their analytical derivatives
+# plots the graph of the original functions, and their analytical/numerical derivative
+#====================================================================================================================================================================
+
+print("""
+Welcome to the derivative calculator.
+Here we do: 
+     1. calculate the numerical derivative of functions of x using
+        central difference method which means, in mathematics:
+        f'(x) = (f(x+h) - f(x-h))/(2*h),
+        where h is called the step size.
+     2. differentiate the function analytically
+     3. compare the numerical derivatives of functions with their analytical derivatives
+     4. plot the graph of the original functions, and their analytical/numerical derivative""")
+input("please press enter to continue")
+# A welcome/introduction note, plus the user needs to press enter to continue with the code
+
+def calculate_the_function(u, *x_values):
+    g = []
+    for x in x_values:
+        g.append(eval(u))
+    return(g)
+
+def calculate_the_analytical_derivative(expr):
+    import sympy
+    x = sympy.symbols('x')
+    g = str(sympy.diff(expr, x))
+    return(g)
+
+def calculate_the_numerical_derivative(u, step_size, *x_values):
+    g = []
+    for x in x_values:
+        result = (calculate_the_function(u, x + step_size)[0] - calculate_the_function(u, x - step_size)[0]) / (2 * step_size)
+        g.append(result)
+    return(g)
+
+def calculate_the_absolute_error(u, w, step_size, *x_values):
+  absolute_error_list = []
+  for x in x_values:
+      result = abs(calculate_the_function(u, x)[0] - calculate_the_numerical_derivative(w, step_size, x)[0])
+      absolute_error_list.append(result)
+  MAE = sum(absolute_error_list) / len(absolute_error_list)
+  return(MAE)
+
+def generate_numbers_in_interval(start, end, step_size):
+    current = start
+    numbers_list = []
+    while current <= end:
+        numbers_list.append(round(current, 2))
+        current += step_size
+    return numbers_list
+
+def plot_the_derivative(x, fx, fprimex, numfprimex, fx_expr, fprimex_expr):
+    import matplotlib.pyplot as plt
+    plt.figure(figsize=(15, 10))
+    plt.plot(x, fx, label= fx_expr, linestyle='-', linewidth=2)
+    plt.plot(x, numfprimex, label="numerical derivative", linestyle='-', linewidth=2, color='darkorange')
+    plt.plot(x, fprimex, label= fprimex_expr, linestyle=':', linewidth=2, color='midnightblue')
+    plt.title("plot")
+    plt.xlabel('x')
+    plt.ylabel('f(x)')
+    plt.legend(loc='upper right', frameon=True, shadow=True, borderpad=1)
+    plt.grid(True, which='both', linestyle='--', linewidth=0.5, color='black', alpha=0.7)
+    plt.tick_params(axis='both', which='major', labelsize=12, width=2, length=7, direction='in', color='black')
+    plt.minorticks_on()
+    plt.gcf().set_facecolor('mistyrose')
+    plt.gca().set_facecolor('floralwhite')
+    plt.show()
+
+the_expression_of_f = input("Enter function of x: ")
+the_expression_of_fprime = calculate_the_analytical_derivative(the_expression_of_f)
+print(f"""The analytical derivative of {the_expression_of_f} is {the_expression_of_fprime}.
+now for the numerical derivative enter the following parameters""")
+start = float(input("Enter the starting point of the interval of differentiation: "))
+end = float(input("Enter the ending point of the interval of differentiation: "))
+h = float(input("Enter the step size of differentiation: "))
+
+values_of_x = generate_numbers_in_interval(start, end, 0.01)
+values_of_fx = calculate_the_function(the_expression_of_f, *values_of_x)
+values_of_fprimex = calculate_the_function(the_expression_of_fprime, *values_of_x)
+values_of_numfprimex = calculate_the_numerical_derivative(the_expression_of_f, h, *values_of_x)
+result_msg = (f"The mean absolute error is {calculate_the_absolute_error(the_expression_of_fprime, the_expression_of_f, h, *values_of_x)}")
+
+plot_the_derivative(values_of_x, values_of_fx, values_of_fprimex, values_of_numfprimex, the_expression_of_f, the_expression_of_fprime)
+print(result_msg)
